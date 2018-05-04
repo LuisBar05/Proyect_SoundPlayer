@@ -48,7 +48,7 @@ public class SongMetadata implements Serializable {
         this.artistName = artistName;
     }
 
-    public String getArtistNme() {
+    public String getArtistName() {
         return artistName;
     }
 

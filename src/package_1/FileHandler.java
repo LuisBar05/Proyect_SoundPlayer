@@ -7,18 +7,23 @@ package package_1;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FileHandler {
 
-    private int idFile;
     private File myFile;
+    private boolean isNull;
 
     public FileHandler(String nameFile) {
         myFile = new File(nameFile);
@@ -30,6 +35,9 @@ public class FileHandler {
                 System.out.println("Error al crear el archivo " + myFile.getName());
                 ioe.printStackTrace();
             }
+            isNull = false;
+        } else {
+            isNull = true;
         }
     }
 
@@ -44,14 +52,39 @@ public class FileHandler {
     }
 
     public LinkedList readFile() {
+        LinkedList<SongMetadata> songsList = null;
         try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(myFile));
+            if (myFile != null) {
+                ObjectInputStream ois = new ObjectInputStream(new FileInputStream(myFile));
+                songsList = (LinkedList<SongMetadata>) ois.readObject();
+
+                ois.close();
+            }
 
         } catch (IOException e) {
-            System.out.println("Ocurrió un error en la lectura del archivo " + myFile);
+            System.out.println("Ocurrió un error en la lectura del archivo " + myFile.getName());
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return songsList;
+    }
 
-        return null;
+    public void writeFile(LinkedList<SongMetadata> songsList) {
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(myFile));
+            oos.writeObject(songsList);
+
+            oos.close();
+        } catch (FileNotFoundException fnfe) {
+            System.out.println("Ocurrió un error en la escritura del archivo " + myFile.getName());
+            fnfe.printStackTrace();
+        } catch (IOException ex) {
+            Logger.getLogger(FileHandler.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public boolean getIsNull() {
+        return isNull;
     }
 
 }
